@@ -5,19 +5,9 @@ import java.util.*;
 
 public class Hangman {
     public static void main(String[] args) throws Exception {
-        String randomWord = chooseWord();
+        WordChooser wordChooser = new WordChooser();
+        String randomWord = wordChooser.chooseWord();
         startGame(randomWord);
-    }
-
-    public static String chooseWord() throws FileNotFoundException {
-        FileReader fr = new FileReader("words.txt");
-        BufferedReader br = new BufferedReader(fr);
-        Random rand = new Random();
-        List<String> fileTokenized = br.lines().toList();
-
-        String word = fileTokenized.get(rand.nextInt(fileTokenized.size()));
-
-        return word;
     }
 
     public static void startGame(String word) {
@@ -46,7 +36,11 @@ public class Hangman {
                     System.out.println("You used this character already, please try again.");
                 } else {
                     if(wordTokenized.contains(userInput)) {
-                        displayList.set(wordTokenized.indexOf(userInput), userInput);
+                        for (int i=0; i<wordTokenized.size(); i++) {
+                            if(wordTokenized.get(i).equals(userInput)) {
+                                displayList.set(i, userInput);
+                            }
+                        }
                         //v code that removes a character from the alphabet array once it gets used v
                         alphabetList.remove(alphabetList.indexOf(userInput));
                     } else {
@@ -59,6 +53,10 @@ public class Hangman {
 
                 if(strikes == 6) {
                     System.out.println("You lose, the word was " + word + ".");
+                }
+                if(displayList.contains("_") == false) {
+                    System.out.println("Congrats, you win! the word was " + word + "!");
+                    break;
                 }
             }
         } while(strikes != 6 || displayList.contains("_") == false);
