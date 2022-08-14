@@ -1,32 +1,45 @@
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
 public class WordChooser {
-    public static String chooseWord() throws FileNotFoundException {
+    public static String chooseWord(boolean isRematch, String previouslyUsedWord) throws Exception {
         Scanner sc = new Scanner(System.in);
-        String word = null;
         FileReader fr = new FileReader("words.txt");
         BufferedReader br = new BufferedReader(fr);
         Random rand = new Random();
-        List<String> fileTokenized = br.lines().toList();
+        List<String> fileTokenized = new ArrayList<String>();
+        fileTokenized.addAll(br.lines().toList());
 
-        System.out.println("Please type the difficulty in lowercase that you wish to play.\neasy\nnormal\nhard\n:");
 
-        String difficulty = sc.nextLine();
+        if(isRematch == true && fileTokenized.contains(previouslyUsedWord)) {
+            fileTokenized.remove(fileTokenized.indexOf(previouslyUsedWord));
+        }
 
-        if(difficulty.equals("easy")) {
-            word = fileTokenized.get(rand.nextInt(0, 13));
-        } else if(difficulty.equals("normal")) {
-            word = fileTokenized.get(rand.nextInt(14,26));
-        } else if (difficulty.equals("hard")) {
-            word = fileTokenized.get(rand.nextInt(27,36));
+        String word = fileTokenized.get(rand.nextInt(fileTokenized.size()));
+
+        System.out.println("Please type the number corresponding to the difficulty that you wish to play.\neasy (1)\nnormal (2)\nhard (3)\n:");
+
+        int difficulty = sc.nextInt();
+
+        if(difficulty == 1) {
+            while(word.length() != 4) {
+                word = fileTokenized.get(rand.nextInt(fileTokenized.size()));
+            }
+        } else if(difficulty == 2) {
+            while(word.length() != 5) {
+                word = fileTokenized.get(rand.nextInt(fileTokenized.size()));
+            }
+        } else if (difficulty == 3) {
+            while(word.length() != 6) {
+                word = fileTokenized.get(rand.nextInt(fileTokenized.size()));
+            }
         } else {
-            System.out.println("Please try again:");
-            chooseWord();
+            throw new Exception("Error: number outside of range 1-3.");
         }
 
         return word;

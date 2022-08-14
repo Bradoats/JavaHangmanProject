@@ -6,12 +6,13 @@ import java.util.*;
 public class Hangman {
     public static void main(String[] args) throws Exception {
         WordChooser wordChooser = new WordChooser();
-        String randomWord = wordChooser.chooseWord();
+        String randomWord = wordChooser.chooseWord(false, " ");
         startGame(randomWord);
     }
 
-    public static void startGame(String word) {
+    public static void startGame(String word) throws Exception {
         Scanner sc = new Scanner(System.in);
+        hangmanASCII artGenerator = new hangmanASCII();
         int strikes = 0;
         List<String> wordTokenized = List.of(word.split(""));
         List<String> displayList = new ArrayList<String>();
@@ -23,31 +24,42 @@ public class Hangman {
             displayList.add("_");
         }
 
+        artGenerator.printArt(strikes);
+
         do {
-            System.out.println(displayList.toString());
+            String displayListStringified = "";
+            for(String character : displayList) {
+                displayListStringified += character + " ";
+            }
+            System.out.println(displayListStringified);
 
             System.out.println("Enter a letter: ");
             String userInput = sc.next();
 
-            if(userInput.length() != 1) {
-                System.out.println("Your input can only have 1 character, please try again.");
+            if(userInput.length() != 1 || userInput.matches("\\d")) {
+                artGenerator.printArt(strikes);
+                System.out.println("Your input can have only 1, lowercase letter, please try again.");
             } else {
-                if(alphabetList.contains(userInput) == false) {
+                if(alphabetList.contains(userInput.toLowerCase()) == false) {
+                    artGenerator.printArt(strikes);
                     System.out.println("You used this character already, please try again.");
                 } else {
-                    if(wordTokenized.contains(userInput)) {
+                    if(wordTokenized.contains(userInput.toLowerCase())) {
                         for (int i=0; i<wordTokenized.size(); i++) {
-                            if(wordTokenized.get(i).equals(userInput)) {
-                                displayList.set(i, userInput);
+                            if(wordTokenized.get(i).equals(userInput.toLowerCase())) {
+                                displayList.set(i, userInput.toLowerCase());
                             }
                         }
+                        artGenerator.printArt(strikes);
+                        System.out.println("Correct, the letter contains " + userInput.toLowerCase() + "!");
                         //v code that removes a character from the alphabet array once it gets used v
-                        alphabetList.remove(alphabetList.indexOf(userInput));
+                        alphabetList.remove(alphabetList.indexOf(userInput.toLowerCase()));
                     } else {
                         strikes += 1;
-                        System.out.println("The hangman now has " + strikes + " body parts");
+                        artGenerator.printArt(strikes);
+                        System.out.println("The hangman now has " + strikes + " body parts.");
                         //v code that removes a character from the alphabet array once it gets used v
-                        alphabetList.remove(alphabetList.indexOf(userInput));
+                        alphabetList.remove(alphabetList.indexOf(userInput.toLowerCase()));
                     }
                 }
 
@@ -60,5 +72,15 @@ public class Hangman {
                 }
             }
         } while(strikes != 6 || displayList.contains("_") == false);
+        System.out.println("Rematch? (yes/no)");
+        sc.nextLine();
+        String rematch = sc.nextLine();
+        if(rematch.equals("yes")) {
+            WordChooser wordChooser = new WordChooser();
+            String randomWord = wordChooser.chooseWord(true, word);
+            startGame(randomWord);
+        } else {
+            System.out.println("Okay, ending game.");
+        }
     }
 }
